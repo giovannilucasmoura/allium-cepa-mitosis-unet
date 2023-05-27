@@ -2,11 +2,9 @@ import keras
 
 ## Configurações
 # Dimensões da imagem de entrada, altura e largura
-TAMANHO_ENTRADA = 512
-# Quantidade de imagens por epoca de treinamento
-IMAGENS_POR_EPOCA = 1
+TAMANHO_ENTRADA = 256
 
-def UNet():
+def UNet(num_classes):
    entrada = keras.layers.Input(shape=(TAMANHO_ENTRADA, TAMANHO_ENTRADA, 3)) # Tamanho da imagem de entrada e 3 camadas de cores RGB
    
    # Contração
@@ -24,7 +22,7 @@ def UNet():
    expansao3 = bloco_expansao(expansao2, caracteristicas2, 128)
    expansao4 = bloco_expansao(expansao3, caracteristicas1, 64)
    
-   saida = keras.layers.Conv2D(3, 1, padding="same", activation = "softmax")(expansao4)
+   saida = keras.layers.Conv2D(num_classes, 1, padding="same", activation = "softmax")(expansao4)
 
    # Modelo completo
    unet_model = keras.Model(entrada, saida, name="UNet")

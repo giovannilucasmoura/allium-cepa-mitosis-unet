@@ -1,5 +1,6 @@
 import PIL
-import numpy as np 
+import numpy as np
+import matplotlib.pyplot as plt
 
 # Funções úteis para o projeto
 def redimensionar(imagem, tamanho, anotacao = False):
@@ -32,3 +33,7 @@ def cvtColor(image):
     else: # Se não tiver, converter
         image = image.convert('RGB')
         return image
+
+def visualizar_imagem(imagem):
+    plt.imshow(imagem)
+    plt.show()

@@ -13,10 +13,11 @@ class Dataset(keras.utils.Sequence):
         self.tamanho_imagem = tamanho_imagem
         self.batch_size = batch_size
 
-        self.imagens, self.anotacoes = self.carregarDados(caminho)
+        self.num_classes = self.num_classes(caminho)
+        self.imagens, self.anotacoes = self.carregar_dados(caminho)
 
     # Carrega os arquivos no dataset, com imagens e anotações no formato VOC
-    def carregarDados(self, caminho):
+    def carregar_dados(self, caminho):
         imagens = []
         anotacoes = []
         nomes_imagens = os.listdir(caminho + "/JPEGImages")
@@ -36,7 +37,7 @@ class Dataset(keras.utils.Sequence):
 
             # Convertendo para numpy
             imagem = np.array(imagem, np.float32)
-            anotacao = np.array(imagem)
+            anotacao = np.array(anotacao)
 
             # Normalizacao da imagem
             imagem = utils.normalizar(imagem)
@@ -46,6 +47,11 @@ class Dataset(keras.utils.Sequence):
 
         return imagens, anotacoes
     
+    # Define a quantidade de classes baseado no arquivo class_names.txt
+    def num_classes(self, caminho):
+        with open(caminho + 'class_names.txt') as reader:
+            return len(reader.readlines())
+
     def __getitem__(self, index):
         imagens = []
         anotacoes = []
@@ -61,7 +67,3 @@ class Dataset(keras.utils.Sequence):
 
     def __len__(self):
         return math.ceil(len(self.imagens) / self.batch_size)
-
-
-if __name__ == "__main__":
-    dataset = Dataset('dataset_teste_voc/train', (512, 512))
