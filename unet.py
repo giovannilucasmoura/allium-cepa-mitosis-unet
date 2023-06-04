@@ -1,11 +1,7 @@
 import keras
 
-## Configurações
-# Dimensões da imagem de entrada, altura e largura
-TAMANHO_ENTRADA = 256
-
-def UNet(num_classes):
-   entrada = keras.layers.Input(shape=(TAMANHO_ENTRADA, TAMANHO_ENTRADA, 3)) # Tamanho da imagem de entrada e 3 camadas de cores RGB
+def UNet(tamanho_entrada, num_classes):
+   entrada = keras.layers.Input(shape=(tamanho_entrada, tamanho_entrada, 3)) # Tamanho da imagem de entrada e 3 camadas de cores RGB
    
    # Contração
    caracteristicas1, contracao1 = bloco_contracao(entrada, 64) # entrada / 2, 64 filtros
