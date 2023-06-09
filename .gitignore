@@ -1,4 +1,4 @@
 __pycache__/
-dataset_teste_voc/
-dataset_auxiliar_voc/
+modelos/
+datasets/
 test.py
