@@ -25,22 +25,8 @@ class Dataset(keras.utils.Sequence):
         for nome_imagem in nomes_imagens:
             nome_imagem = nome_imagem.split(".")[0]
 
-            imagem = PIL.Image.open(caminho + "/JPEGImages/" + nome_imagem + ".jpg")
-            imagem = utils.cvtColor(imagem)
-            
-            anotacao = PIL.Image.open(caminho + "/SegmentationClassPNG/" + nome_imagem + ".png")
-            anotacao = PIL.Image.fromarray(np.array(anotacao))
-
-            # Redimensionamento
-            imagem = utils.redimensionar(imagem, self.tamanho_imagem, False)
-            anotacao = utils.redimensionar(anotacao, self.tamanho_imagem, True)
-
-            # Convertendo para numpy
-            imagem = np.array(imagem, np.float32)
-            anotacao = np.array(anotacao)
-
-            # Normalizacao da imagem
-            imagem = utils.normalizar(imagem)
+            imagem = utils.processar_imagem(caminho + "/JPEGImages/" + nome_imagem + ".jpg", self.tamanho_imagem)
+            anotacao = utils.processar_anotacao(caminho + "/SegmentationClassPNG/" + nome_imagem + ".png", self.tamanho_imagem)
 
             imagens.append(imagem)
             anotacoes.append(anotacao)
@@ -59,6 +45,7 @@ class Dataset(keras.utils.Sequence):
         for i in range(index * self.batch_size, (index + 1) * self.batch_size):
             imagens.append(self.imagens[i])
             anotacoes.append(self.anotacoes[i])
+            
 
         imagens = np.array(imagens)
         anotacoes = np.array(anotacoes)
