@@ -69,6 +69,18 @@ def cvtColor(image):
         image = image.convert('RGB')
         return image
 
+def iou_mascara_binaria(anotacao, predicao):
+    # Area total positiva das mascaras
+    anotacao_area = np.count_nonzero(anotacao == 1)
+    predicao_area = np.count_nonzero(predicao == 1)
+
+    # Area com valor positivo em ambas as mascaras
+    intersecao = np.count_nonzero(np.logical_and(anotacao == 1,  predicao == 1))
+
+    iou = intersecao / (anotacao_area + predicao_area - intersecao)
+
+    return iou
+
 def visualizar(imagem, anotacao, predicao):
     plt.figure(figsize=(15, 15))
 

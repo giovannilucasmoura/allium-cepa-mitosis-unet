@@ -4,14 +4,22 @@ import os
 import utils
 import numpy as np
 import PIL
+import matplotlib.pyplot as plt
 # ----------------
 # Visualização de inferência e avaliação de modelo treinado
 # ----------------
 
 # Caminho da pasta onde o modelo está salvo, no formato SavedModel
 caminho_modelo = 'modelos/modelo_50_(256, 192)_2_5e-06'
+
+# O que vai ser usado para predição, pode ser uma imagem ou pasta, que deve conter uma base de dados no formato VOC
 caminho_dados = 'datasets/dataset_avaliacao_voc/'
+
+# Mostrar a camada de resposta real ou apenas a camada de ativacao da classe mitose
 mostrar_camada_resposta = False
+
+# Avaliar IoU(Intersection over Union) do modelo, apenas funciona com dados em pasta no formato VOC
+avaliar = True
 
 # Carregando modelo e tamanho do formato da camada de entrada
 modelo = keras.models.load_model(caminho_modelo)
@@ -57,16 +65,34 @@ if(os.path.isdir(caminho_dados)):
         anotacoes.append(anotacao)
         
     predicoes = modelo.predict(np.vstack(imagens_predicao))
+    ious = []
 
     for i in range(len(imagens)):
         predicao = predicoes[i]
 
-        if mostrar_camada_resposta:
+        if avaliar:
+            anotacao = anotacoes[i]
+
             predicao = tf.argmax(predicao, axis=-1)
+
             predicao = predicao[..., tf.newaxis]
             predicao = tf.keras.preprocessing.image.array_to_img(predicao)
-        else:
-            predicao = tf.keras.preprocessing.image.array_to_img(np.expand_dims(predicao[:,:,1], axis=-1))
+            predicao = utils.redimensionar_anotacao(predicao, tf.keras.preprocessing.image.array_to_img(np.expand_dims(anotacao, axis=-1)).size)
+            predicao = np.array(predicao) / 255
 
-        predicao = utils.redimensionar_anotacao(predicao, tf.keras.preprocessing.image.array_to_img(imagens[i]).size)
-        utils.visualizar(imagens[i], anotacoes[i], predicao)
+            ious.append(utils.iou_mascara_binaria(anotacao, predicao))
+        else:
+            if mostrar_camada_resposta:
+                predicao = tf.argmax(predicao, axis=-1)
+                predicao = predicao[..., tf.newaxis]
+                predicao = tf.keras.preprocessing.image.array_to_img(predicao)
+            else:
+                predicao = tf.keras.preprocessing.image.array_to_img(np.expand_dims(predicao[:,:,1], axis=-1))
+
+            predicao = utils.redimensionar_anotacao(predicao, tf.keras.preprocessing.image.array_to_img(imagens[i]).size)
+            utils.visualizar(imagens[i], anotacoes[i], predicao)
+
+    if avaliar:
+        print("Media de IoU do Modelo: " + str(np.mean(ious)))
+
+    
