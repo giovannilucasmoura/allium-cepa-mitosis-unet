@@ -9,7 +9,7 @@ import keras
 # Pre-processamento para treinamento
 def processar_imagem(caminho, tamanho):
     imagem = PIL.Image.open(caminho)
-    imagem = cvtColor(imagem)
+    imagem = converter_cores_rgb(imagem)
     if(tamanho != None):
         imagem = redimensionar_imagem(imagem, tamanho)
     imagem = np.array(imagem, np.float32)
@@ -62,7 +62,7 @@ def normalizar(imagem):
     return imagem
 
 # Garante que a imagem tem 3 canais de cores
-def cvtColor(image):
+def converter_cores_rgb(image):
     if len(np.shape(image)) == 3 and np.shape(image)[-2] == 3:
         return image
     else: # Se não tiver, converter
@@ -84,19 +84,19 @@ def iou_mascara_binaria(anotacao, predicao):
 def visualizar(imagem, anotacao, predicao):
     plt.figure(figsize=(15, 15))
 
-    titulo = ['Imagem', 'Predição do modelo']
+    titulo = ['Imagem', 'Resposta do modelo']
 
-    if len(anotacao) != 0:
-        titulo.insert(1, 'Resposta real')
+    # if len(anotacao) != 0:
+    titulo.insert(1, 'Anotação')
 
     for i in range(len(titulo)):
         plt.subplot(1, len(titulo), i + 1)
         plt.title(titulo[i])
         if(i == 0): 
             plt.imshow(imagem)
-        if(i == 1 and len(anotacao) > 0): 
+        if(i == 1): 
             plt.imshow(anotacao)
-        if(i == 2 or (i == 1 and len(anotacao) == 0)): 
+        if(i == 2): 
             plt.imshow(predicao)
         plt.axis('off')
         

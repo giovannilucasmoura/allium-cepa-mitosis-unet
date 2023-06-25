@@ -10,16 +10,16 @@ import matplotlib.pyplot as plt
 # ----------------
 
 # Caminho da pasta onde o modelo está salvo, no formato SavedModel
-caminho_modelo = 'modelos/modelo_50_(256, 192)_2_5e-06'
+caminho_modelo = ''
 
 # O que vai ser usado para predição, pode ser uma imagem ou pasta, que deve conter uma base de dados no formato VOC
-caminho_dados = 'datasets/dataset_avaliacao_voc/'
+caminho_dados = ''
 
 # Mostrar a camada de resposta real ou apenas a camada de ativacao da classe mitose
 mostrar_camada_resposta = False
 
 # Avaliar IoU(Intersection over Union) do modelo, apenas funciona com dados em pasta no formato VOC
-avaliar = True
+avaliar = False
 
 # Carregando modelo e tamanho do formato da camada de entrada
 modelo = keras.models.load_model(caminho_modelo)
@@ -87,7 +87,11 @@ if(os.path.isdir(caminho_dados)):
                 predicao = predicao[..., tf.newaxis]
                 predicao = tf.keras.preprocessing.image.array_to_img(predicao)
             else:
+                anotacoes[i] = predicao[:,:,0]
                 predicao = tf.keras.preprocessing.image.array_to_img(np.expand_dims(predicao[:,:,1], axis=-1))
+                anotacoes[i] = tf.keras.preprocessing.image.array_to_img(np.expand_dims(anotacoes[i], axis=-1))
+                anotacoes[i] = utils.redimensionar_anotacao(anotacoes[i], tf.keras.preprocessing.image.array_to_img(imagens[i]).size)
+
 
             predicao = utils.redimensionar_anotacao(predicao, tf.keras.preprocessing.image.array_to_img(imagens[i]).size)
             utils.visualizar(imagens[i], anotacoes[i], predicao)
@@ -95,4 +99,3 @@ if(os.path.isdir(caminho_dados)):
     if avaliar:
         print("Media de IoU do Modelo: " + str(np.mean(ious)))
 
-    

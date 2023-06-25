@@ -38,6 +38,7 @@ class Dataset(keras.utils.Sequence):
         with open(caminho + 'class_names.txt') as reader:
             return len(reader.readlines())
 
+    # Método obrigatório da superclasse Sequence, retorna uma batch de dados durante o treinamento
     def __getitem__(self, index):
         imagens = []
         anotacoes = []
@@ -52,5 +53,6 @@ class Dataset(keras.utils.Sequence):
 
         return imagens, anotacoes
 
+    # Método obrigatório da superclasse Sequence, retorna o tamanho total da base de dados, considerando o batch_size
     def __len__(self):
         return math.ceil(len(self.imagens) / self.batch_size)

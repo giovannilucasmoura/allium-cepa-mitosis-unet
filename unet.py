@@ -1,25 +1,23 @@
 import keras
 
+# Função que retorna o modelo U-Net implementado na biblioteca keras
 def UNet(tamanho_entrada, num_classes):
    entrada = keras.layers.Input(shape=tamanho_entrada + (3,)) # Tamanho da imagem de entrada e 3 camadas de cores RGB
    
-   # qtd_filtros = [64, 128, 256, 512, 1024] # Modelo maior
-   qtd_filtros = [32, 64, 128, 256, 512]  # Modelo menor
-
    # Contração
-   caracteristicas1, contracao1 = bloco_contracao(entrada, qtd_filtros[0]) 
-   caracteristicas2, contracao2 = bloco_contracao(contracao1, qtd_filtros[1])
-   caracteristicas3, contracao3 = bloco_contracao(contracao2, qtd_filtros[2])
-   caracteristicas4, contracao4 = bloco_contracao(contracao3, qtd_filtros[3])
+   caracteristicas1, contracao1 = bloco_contracao(entrada, 64) 
+   caracteristicas2, contracao2 = bloco_contracao(contracao1, 128)
+   caracteristicas3, contracao3 = bloco_contracao(contracao2, 256)
+   caracteristicas4, contracao4 = bloco_contracao(contracao3, 512)
 
    # Camadas intermediárias/continuação
-   continuacao = convolucao_dupla(contracao4, qtd_filtros[4])
+   continuacao = convolucao_dupla(contracao4, 1024)
 
    # Expansão
-   expansao1 = bloco_expansao(continuacao, caracteristicas4, qtd_filtros[3])
-   expansao2 = bloco_expansao(expansao1, caracteristicas3, qtd_filtros[2])
-   expansao3 = bloco_expansao(expansao2, caracteristicas2, qtd_filtros[1])
-   expansao4 = bloco_expansao(expansao3, caracteristicas1, qtd_filtros[0])
+   expansao1 = bloco_expansao(continuacao, caracteristicas4, 512)
+   expansao2 = bloco_expansao(expansao1, caracteristicas3, 256)
+   expansao3 = bloco_expansao(expansao2, caracteristicas2, 128)
+   expansao4 = bloco_expansao(expansao3, caracteristicas1, 64)
    
    saida = keras.layers.Conv2D(num_classes, 1, padding="same", activation = "softmax")(expansao4)
 
@@ -30,9 +28,7 @@ def UNet(tamanho_entrada, num_classes):
 
 # Camadas de convolução usados na contração
 def convolucao_dupla(camadas, filtros):
-   # Conv2D then ReLU activation
    camadas = keras.layers.Conv2D(filtros, 3, padding = "same", activation = "relu", kernel_initializer = "he_normal")(camadas)
-   # Conv2D then ReLU activation
    camadas = keras.layers.Conv2D(filtros, 3, padding = "same", activation = "relu", kernel_initializer = "he_normal")(camadas)
    return camadas
 
